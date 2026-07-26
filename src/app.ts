@@ -3,6 +3,8 @@ import cors from "cors";
 import config from "./config";
 import cookieParser from "cookie-parser";
 import { AuthRoutes } from "./module/auth/auth.route";
+import { PropertyRoutes } from "./module/property/property.route";
+import { CategoryRoutes } from "./module/category/category.route";
 const app : Application = express();
 
 //middleware
@@ -25,6 +27,8 @@ app.get("/",(req:Request, res: Response)=>{
 })
 
 app.use("/api/auth",AuthRoutes)
+app.use("/api/properties",PropertyRoutes)
 
+app.use("/api/categories", CategoryRoutes);
 
 export default app;
