@@ -7,5 +7,10 @@ const router = Router();
 
 router.post("/register",validateRequest(AuthValidation.registerSchema),authController.registerUser)
 
+router.post(
+  "/login",
+  validateRequest(AuthValidation.loginSchema),
+  authController.loginUser
+);
 
 export const AuthRoutes = router;
