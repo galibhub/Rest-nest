@@ -22,5 +22,5 @@ model RentalRequest {
   @@index([tenantId])
   @@index([propertyId])
 
-  @@unique([tenantId, propertyId])
+ 
 }
