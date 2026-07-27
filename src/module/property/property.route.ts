@@ -12,4 +12,11 @@ router.post("/",auth(Role.LANDLORD),validateRequest(PropertyValidation.createPro
 router.get("/", PropertyController.getAllProperties);
 router.get("/:id", PropertyController.getSingleProperty);
 
+router.patch(
+  "/:id",
+  auth(Role.LANDLORD),
+  validateRequest(PropertyValidation.updatePropertyValidationSchema),
+  PropertyController.updateProperty
+);
+
 export const PropertyRoutes = router;

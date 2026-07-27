@@ -52,8 +52,30 @@ const getSingleProperty = catchAsync(
 );
 
 
+// Update Property
+
+const updateProperty = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await propertyService.updateProperty(
+      req.params.id as string,
+      req.body,
+      req.user!.id
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Property updated successfully",
+      data: result,
+    });
+  }
+);
+
+
+
 export const PropertyController = {
   createProperty,
   getAllProperties,
-  getSingleProperty
+  getSingleProperty,
+  updateProperty,
 };

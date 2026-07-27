@@ -85,11 +85,69 @@ const getSingleProperty = async (id: string) => {
   return property;
 };
 
+//update property
+const updateProperty = async (
+  id: string,
+  payload: any,
+  landlordId: string
+) => {
+  // Check property exists
+  const existingProperty = await prisma.property.findUnique({
+    where: {
+      id,
+    },
+  });
 
+  if (!existingProperty) {
+    throw new Error("Property not found.");
+  }
+
+  // Ownership check
+  if (existingProperty.landlordId !== landlordId) {
+    throw new Error("You are not authorized to update this property.");
+  }
+
+  // Check category (if provided)
+  if (payload.categoryId) {
+    const category = await prisma.category.findUnique({
+      where: {
+        id: payload.categoryId,
+      },
+    });
+
+    if (!category) {
+      throw new Error("Category not found.");
+    }
+  }
+
+  // Update property
+  const updatedProperty = await prisma.property.update({
+    where: {
+      id,
+    },
+    data: payload,
+    include: {
+      landlord: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+        },
+      },
+      category: true,
+    },
+  });
+
+  return updatedProperty;
+};
 
 
 export const propertyService ={
     createProperty,
     getAllProperties,
-    getSingleProperty 
+    getSingleProperty,
+    updateProperty,
+    
 }

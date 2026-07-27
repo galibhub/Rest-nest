@@ -51,6 +51,22 @@ const createPropertyValidationSchema = z.object({
   }),
 });
 
+const updatePropertyValidationSchema = z.object({
+  body: z.object({
+    title: z.string().min(3).optional(),
+    description: z.string().min(10).optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    rentAmount: z.coerce.number().positive().optional(),
+    bedrooms: z.coerce.number().int().positive().optional(),
+    bathrooms: z.coerce.number().int().positive().optional(),
+    amenities: z.array(z.string()).min(1).optional(),
+    images: z.array(z.string()).min(1).optional(),
+    categoryId: z.string().uuid().optional(),
+  }),
+});
+
 export const PropertyValidation = {
   createPropertyValidationSchema,
+  updatePropertyValidationSchema,
 };

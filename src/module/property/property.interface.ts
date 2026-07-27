@@ -4,6 +4,3 @@ enum PropertyAvailability {
   UNAVAILABLE
 }
 
-// type PropertyParams = {
-//   id: string;
-// };
