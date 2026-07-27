@@ -55,11 +55,41 @@ const getAllProperties = async()=>{
     return properties
 }
 
+//get single property
+
+// Get Single Property
+
+const getSingleProperty = async (id: string) => {
+  const property = await prisma.property.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      landlord: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+        },
+      },
+      category: true,
+    },
+  });
+
+  if (!property) {
+    throw new Error("Property not found.");
+  }
+
+  return property;
+};
 
 
 
 
 export const propertyService ={
     createProperty,
-    getAllProperties
+    getAllProperties,
+    getSingleProperty 
 }

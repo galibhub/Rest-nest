@@ -3,3 +3,7 @@ enum PropertyAvailability {
   RENTED,
   UNAVAILABLE
 }
+
+// type PropertyParams = {
+//   id: string;
+// };
