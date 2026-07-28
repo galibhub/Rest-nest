@@ -9,6 +9,12 @@ import validateRequest from "../../middleware/validateRequest";
 
 const router = express.Router();
 
+router.get(
+  "/landlord",
+  auth(Role.LANDLORD),
+  RentalRequestController.getLandlordRentalRequests
+);
+
 router.post(
   "/",
   auth(Role.TENANT),
@@ -17,5 +23,13 @@ router.post(
   ),
   RentalRequestController.createRentalRequest
 );
+
+router.patch(
+  "/:id/approve",
+  auth(Role.LANDLORD),
+  RentalRequestController.approveRentalRequest
+);
+
+
 
 export const RentalRequestRoutes = router;

@@ -79,6 +79,146 @@ const createRentalRequest = async (
   return rentalRequest;
 };
 
+//get landlord rental request
+const getLandlordRentalRequests = async (landlordId: string) => {
+  const result = await prisma.rentalRequest.findMany({
+    where: {
+      property: {
+        landlordId,
+      },
+    },
+
+    select: {
+      id: true,
+      moveInDate: true,
+      status: true,
+      createdAt: true,
+
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+
+      property: {
+        select: {
+          id: true,
+          title: true,
+          city: true,
+          rentAmount: true,
+          availability: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return result;
+};
+
+
+//aprrove rental
+
+const approveRentalRequest = async (
+  requestId: string,
+  landlordId: string
+) => {
+  // Step 1: Find rental request
+  const rentalRequest = await prisma.rentalRequest.findUnique({
+    where: {
+      id: requestId,
+    },
+    include: {
+      property: true,
+    },
+  });
+
+  // Step 2: Check request exists
+  if (!rentalRequest) {
+    throw new Error("Rental request not found.");
+  }
+
+  // Step 3: Ownership check
+  if (rentalRequest.property.landlordId !== landlordId) {
+    throw new Error(
+      "You are not authorized to approve this rental request."
+    );
+  }
+
+  // Step 4: Request must be pending
+  if (rentalRequest.status !== RentalRequestStatus.PENDING) {
+    throw new Error("Only pending rental requests can be approved.");
+  }
+
+  // Step 5: Property must be available
+  if (
+    rentalRequest.property.availability !==
+    PropertyAvailability.AVAILABLE
+  ) {
+    throw new Error("Property is no longer available.");
+  }
+
+  // Step 6: Transaction
+  await prisma.$transaction(async (tx) => {
+    // Update Property
+    await tx.property.update({
+      where: {
+        id: rentalRequest.propertyId,
+      },
+      data: {
+        availability: PropertyAvailability.RENTED,
+      },
+    });
+
+    // Update Rental Request
+    await tx.rentalRequest.update({
+      where: {
+        id: requestId,
+      },
+      data: {
+        status: RentalRequestStatus.APPROVED,
+      },
+    });
+  });
+
+  // Step 7: Fetch latest updated data
+  const result = await prisma.rentalRequest.findUnique({
+    where: {
+      id: requestId,
+    },
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      property: {
+        select: {
+          id: true,
+          title: true,
+          city: true,
+          rentAmount: true,
+          availability: true,
+        },
+      },
+    },
+  });
+
+  return result;
+};
+
+
+
+
 export const RentalRequestService = {
   createRentalRequest,
+  getLandlordRentalRequests,
+  approveRentalRequest
 };

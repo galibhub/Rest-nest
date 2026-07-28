@@ -20,6 +20,40 @@ const createRentalRequest = catchAsync(
   }
 );
 
+
+//get lanloard rental request
+const getLandlordRentalRequests = catchAsync(async (req, res) => {
+  const result = await RentalRequestService.getLandlordRentalRequests(
+    req.user!.id
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Rental requests retrieved successfully.",
+    data: result,
+  });
+});
+
+
+//approve rental
+
+const approveRentalRequest = catchAsync(async (req, res) => {
+  const result = await RentalRequestService.approveRentalRequest(
+    req.params.id as string,
+    req.user!.id
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Rental request approved successfully.",
+    data: result,
+  });
+});
+
 export const RentalRequestController = {
   createRentalRequest,
+  getLandlordRentalRequests,
+  approveRentalRequest
 };
