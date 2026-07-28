@@ -6,13 +6,16 @@ import { AuthRoutes } from "./module/auth/auth.route";
 import { PropertyRoutes } from "./module/property/property.route";
 import { CategoryRoutes } from "./module/category/category.route";
 import { RentalRequestRoutes } from "./module/rental-request/rentalRequest.route";
+import { PaymentRoutes } from "./module/payment/payment.route";
+import { PaymentController } from "./module/payment/payment.controller";
+
+
+
+
 const app : Application = express();
 
 
-app.use((req, res, next) => {
-  console.log("Incoming Request:", req.method, req.originalUrl);
-  next();
-});
+
 
 
 //middleware
@@ -21,6 +24,15 @@ app.use(
     origin: config.app_url,
     credentials: true,
   }),
+);
+
+
+
+
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  PaymentController.handleWebhook
 );
 
 app.use(express.json());
@@ -41,5 +53,6 @@ app.use("/api/properties",PropertyRoutes)
 app.use("/api/categories", CategoryRoutes);
 
 app.use("/api/rentals", RentalRequestRoutes);
+app.use("/api/payments", PaymentRoutes);
 
 export default app;
