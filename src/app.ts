@@ -9,6 +9,7 @@ import { RentalRequestRoutes } from "./module/rental-request/rentalRequest.route
 import { PaymentRoutes } from "./module/payment/payment.route";
 import { PaymentController } from "./module/payment/payment.controller";
 import { ReviewRoutes } from "./module/review/review.route";
+import { UserRoutes } from "./module/user/user.route";
 
 
 
@@ -49,6 +50,7 @@ app.get("/",(req:Request, res: Response)=>{
 })
 
 app.use("/api/auth",AuthRoutes)
+app.use("/api/users", UserRoutes);
 app.use("/api/properties",PropertyRoutes)
 
 app.use("/api/categories", CategoryRoutes);
@@ -56,5 +58,6 @@ app.use("/api/categories", CategoryRoutes);
 app.use("/api/rentals", RentalRequestRoutes);
 app.use("/api/payments", PaymentRoutes);
 app.use("/api/reviews", ReviewRoutes);
+
 
 export default app;
