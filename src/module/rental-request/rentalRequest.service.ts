@@ -214,11 +214,67 @@ const approveRentalRequest = async (
   return result;
 };
 
+//reject rental request
+const rejectRentalRequest = async (
+  requestId: string,
+  landlordId: string
+) => {
+  const rentalRequest = await prisma.rentalRequest.findUnique({
+    where: {
+      id: requestId,
+    },
+    include: {
+      property: true,
+    },
+  });
 
+  if (!rentalRequest) {
+    throw new Error("Rental request not found.");
+  }
 
+  if (rentalRequest.property.landlordId !== landlordId) {
+    throw new Error(
+      "You are not authorized to reject this rental request."
+    );
+  }
+
+  if (rentalRequest.status !== RentalRequestStatus.PENDING) {
+    throw new Error("Only pending rental requests can be rejected.");
+  }
+
+  const result = await prisma.rentalRequest.update({
+    where: {
+      id: requestId,
+    },
+    data: {
+      status: RentalRequestStatus.REJECTED,
+    },
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      property: {
+        select: {
+          id: true,
+          title: true,
+          city: true,
+          rentAmount: true,
+          availability: true,
+        },
+      },
+    },
+  });
+
+  return result;
+};
 
 export const RentalRequestService = {
   createRentalRequest,
   getLandlordRentalRequests,
-  approveRentalRequest
+  approveRentalRequest,
+  rejectRentalRequest
 };

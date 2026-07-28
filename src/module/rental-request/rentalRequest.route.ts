@@ -29,7 +29,11 @@ router.patch(
   auth(Role.LANDLORD),
   RentalRequestController.approveRentalRequest
 );
-
+router.patch(
+  "/:id/reject",
+  auth(Role.LANDLORD),
+  RentalRequestController.rejectRentalRequest
+);
 
 
 export const RentalRequestRoutes = router;

@@ -52,8 +52,25 @@ const approveRentalRequest = catchAsync(async (req, res) => {
   });
 });
 
+//reject rental request
+
+const rejectRentalRequest = catchAsync(async (req, res) => {
+  const result = await RentalRequestService.rejectRentalRequest(
+    req.params.id as string,
+    req.user!.id
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Rental request rejected successfully.",
+    data: result,
+  });
+});
+
 export const RentalRequestController = {
   createRentalRequest,
   getLandlordRentalRequests,
-  approveRentalRequest
+  approveRentalRequest,
+  rejectRentalRequest
 };
