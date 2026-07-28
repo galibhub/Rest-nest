@@ -8,6 +8,7 @@ import { CategoryRoutes } from "./module/category/category.route";
 import { RentalRequestRoutes } from "./module/rental-request/rentalRequest.route";
 import { PaymentRoutes } from "./module/payment/payment.route";
 import { PaymentController } from "./module/payment/payment.controller";
+import { ReviewRoutes } from "./module/review/review.route";
 
 
 
@@ -54,5 +55,6 @@ app.use("/api/categories", CategoryRoutes);
 
 app.use("/api/rentals", RentalRequestRoutes);
 app.use("/api/payments", PaymentRoutes);
+app.use("/api/reviews", ReviewRoutes);
 
 export default app;
