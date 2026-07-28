@@ -23,8 +23,8 @@ const createProperty = catchAsync(
 //get all properties
 const getAllProperties = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await propertyService.getAllProperties();
-
+    // const result = await propertyService.getAllProperties();
+    const result = await propertyService.getAllProperties(req.query);
     sendResponse(res, {
       statusCode: 200,
       success: true,
