@@ -35,5 +35,10 @@ router.patch(
   RentalRequestController.rejectRentalRequest
 );
 
+router.get(
+  "/admin",
+  auth(Role.ADMIN),
+  RentalRequestController.getAllRentalRequests
+);
 
 export const RentalRequestRoutes = router;

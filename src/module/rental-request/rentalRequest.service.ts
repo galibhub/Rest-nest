@@ -272,9 +272,94 @@ const rejectRentalRequest = async (
   return result;
 };
 
+
+
+
+const getAllRentalRequests = async (query: Record<string, any>) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const where: any = {};
+
+  if (query.status) {
+    where.status = query.status;
+  }
+
+  const [rentalRequests, total] = await Promise.all([
+    prisma.rentalRequest.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            status: true,
+          },
+        },
+
+        property: {
+          select: {
+            id: true,
+            title: true,
+            address: true,
+            city: true,
+            rentAmount: true,
+            availability: true,
+
+            landlord: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+
+        payment: {
+          select: {
+            id: true,
+            amount: true,
+            provider: true,
+            status: true,
+            paidAt: true,
+          },
+        },
+      },
+    }),
+
+    prisma.rentalRequest.count({
+      where,
+    }),
+  ]);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: rentalRequests,
+  };
+};
+
+
+
+
+
 export const RentalRequestService = {
   createRentalRequest,
   getLandlordRentalRequests,
   approveRentalRequest,
-  rejectRentalRequest
+  rejectRentalRequest,
+  getAllRentalRequests
 };

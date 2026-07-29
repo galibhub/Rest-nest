@@ -68,9 +68,33 @@ const rejectRentalRequest = catchAsync(async (req, res) => {
   });
 });
 
+
+
+// ===============================
+// Get All Rental Requests (Admin)
+// ===============================
+
+const getAllRentalRequests = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await RentalRequestService.getAllRentalRequests(req.query);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 200,
+      message: "Rental requests retrieved successfully.",
+      meta: result.meta,
+      data: result.data,
+    });
+  }
+);
+
+
+
+
 export const RentalRequestController = {
   createRentalRequest,
   getLandlordRentalRequests,
   approveRentalRequest,
-  rejectRentalRequest
+  rejectRentalRequest,
+  getAllRentalRequests
 };

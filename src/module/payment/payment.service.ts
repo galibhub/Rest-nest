@@ -250,6 +250,7 @@ const getSinglePayment = async (
         property: {
           select: {
             id: true,
+            landlordId: true,
             title: true,
             address: true,
             city: true,

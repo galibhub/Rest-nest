@@ -90,4 +90,5 @@ export const PaymentController = {
   handleWebhook,
   getAllPayments,
   getSinglePayment
+  
 };
