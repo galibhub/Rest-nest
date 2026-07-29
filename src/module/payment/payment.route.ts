@@ -16,4 +16,19 @@ router.post(
   PaymentController.createCheckoutSession
 );
 
+// Get All Payments
+router.get(
+  "/",
+  auth(Role.ADMIN, Role.LANDLORD, Role.TENANT),
+  PaymentController.getAllPayments
+);
+
+// Get Single Payment
+router.get(
+  "/:id",
+  auth(Role.ADMIN, Role.LANDLORD, Role.TENANT),
+  PaymentController.getSinglePayment
+);
+
+
 export const PaymentRoutes = router;

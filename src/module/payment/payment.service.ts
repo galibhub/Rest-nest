@@ -3,6 +3,7 @@ import {
   PaymentStatus,
   PropertyAvailability,
   RentalRequestStatus,
+  Role,
 } from "../../../prisma/generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { createCheckoutSession } from "./payment.utils";
@@ -10,6 +11,8 @@ import { createCheckoutSession } from "./payment.utils";
 import Stripe from "stripe";
 import config from "../../config";
 import { stripe } from "../../lib/stripe";
+
+
 
 // ===============================
 // Create Checkout Session
@@ -69,14 +72,11 @@ const createCheckoutSessionIntoDB = async (rentalRequestId: string) => {
 // Stripe Webhook
 // ===============================
 
-const handleWebhookIntoDB = async (
-  signature: string,
-  payload: Buffer
-) => {
+const handleWebhookIntoDB = async (signature: string, payload: Buffer) => {
   const event = stripe.webhooks.constructEvent(
     payload,
     signature,
-    config.stripe_webhook_secret
+    config.stripe_webhook_secret,
   );
 
   // Ignore other events
@@ -153,7 +153,137 @@ const handleWebhookIntoDB = async (
   });
 };
 
+//get all payments
+
+const getAllPayments = async (
+  userId: string,
+  role: Role,
+  query: Record<string, any>,
+) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const where: any = {};
+
+  if (role === Role.TENANT) {
+    where.rentalRequest = {
+      tenantId: userId,
+    };
+  }
+
+  if (role === Role.LANDLORD) {
+    where.rentalRequest = {
+      property: {
+        landlordId: userId,
+      },
+    };
+  }
+
+  const [payments, total] = await Promise.all([
+    prisma.payment.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        rentalRequest: {
+          include: {
+            tenant: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            property: {
+              select: {
+                id: true,
+                title: true,
+                rentAmount: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+
+    prisma.payment.count({
+      where,
+    }),
+  ]);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: payments,
+  };
+};
+
+const getSinglePayment = async (
+  paymentId: string,
+  userId: string,
+  role: Role,
+) => {
+  const payment = await prisma.payment.findUnique({
+  where: {
+    id: paymentId,
+  },
+  include: {
+    rentalRequest: {
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            status: true,
+          },
+        },
+        property: {
+          select: {
+            id: true,
+            title: true,
+            address: true,
+            city: true,
+            rentAmount: true,
+            availability: true,
+          },
+        },
+      },
+    },
+  },
+});
+
+  if (!payment) {
+    throw new Error("Payment not found.");
+  }
+
+  if (role === Role.TENANT && payment.rentalRequest.tenantId !== userId) {
+    throw new Error("Unauthorized access.");
+  }
+
+  if (
+    role === Role.LANDLORD &&
+    payment.rentalRequest.property.landlordId !== userId
+  ) {
+    throw new Error("Unauthorized access.");
+  }
+
+  return payment;
+};
+
+
 export const PaymentService = {
   createCheckoutSessionIntoDB,
   handleWebhookIntoDB,
+  getAllPayments,
+  getSinglePayment,
 };
