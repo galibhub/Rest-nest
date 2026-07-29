@@ -281,11 +281,92 @@ const deleteProperty = async (
 };
 
 
+const getAllPropertiesForAdmin = async (
+  query: Record<string, any>
+) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const where: any = {};
+
+  // Search
+  if (query.search) {
+    where.OR = [
+      {
+        title: {
+          contains: query.search,
+          mode: "insensitive",
+        },
+      },
+      {
+        city: {
+          contains: query.search,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
+
+  // Availability Filter
+  if (query.availability) {
+    where.availability = query.availability;
+  }
+
+  const [properties, total] = await Promise.all([
+    prisma.property.findMany({
+      where,
+      skip,
+      take: limit,
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      include: {
+        landlord: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            status: true,
+          },
+        },
+
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    }),
+
+    prisma.property.count({
+      where,
+    }),
+  ]);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: properties,
+  };
+};
+
+
+
 export const propertyService ={
     createProperty,
     getAllProperties,
     getSingleProperty,
     updateProperty,
-    deleteProperty
+    deleteProperty,
+    getAllPropertiesForAdmin 
 
 }

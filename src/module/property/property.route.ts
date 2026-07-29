@@ -10,6 +10,11 @@ const router= Router()
 router.post("/",auth(Role.LANDLORD),validateRequest(PropertyValidation.createPropertyValidationSchema),PropertyController.createProperty)
 
 router.get("/", PropertyController.getAllProperties);
+router.get(
+  "/admin",
+  auth(Role.ADMIN),
+  PropertyController.getAllPropertiesForAdmin
+);
 router.get("/:id", PropertyController.getSingleProperty);
 
 router.patch(

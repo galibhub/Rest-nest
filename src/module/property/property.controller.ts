@@ -91,6 +91,24 @@ const deleteProperty = catchAsync(
 );
 
 
+// ===============================
+// Get All Properties (Admin)
+// ===============================
+
+const getAllPropertiesForAdmin = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await propertyService.getAllPropertiesForAdmin(req.query);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Properties retrieved successfully.",
+      meta: result.meta,
+      data: result.data,
+    });
+  }
+);
+
 
 
 export const PropertyController = {
@@ -99,4 +117,5 @@ export const PropertyController = {
   getSingleProperty,
   updateProperty,
   deleteProperty,
+  getAllPropertiesForAdmin 
 };

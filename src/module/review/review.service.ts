@@ -20,20 +20,20 @@ const createReview = async (
     throw new Error("Property not found");
   }
 
-  // Rental completed?
-  const rentalRequest = await prisma.rentalRequest.findFirst({
-    where: {
-      tenantId: userId,
-      propertyId: payload.propertyId,
-      status: RentalRequestStatus.ACTIVE,
-    },
-  });
+  // Tenant must have an active rental
+const rentalRequest = await prisma.rentalRequest.findFirst({
+  where: {
+    tenantId: userId,
+    propertyId: payload.propertyId,
+    status: RentalRequestStatus.ACTIVE,
+  },
+});
 
-  if (!rentalRequest) {
-    throw new Error(
-      "You can review only after completing the rental."
-    );
-  }
+if (!rentalRequest) {
+  throw new Error(
+    "Only tenants with an active rental can review this property."
+  );
+}
 
   // Already reviewed?
   const existingReview = await prisma.review.findFirst({
